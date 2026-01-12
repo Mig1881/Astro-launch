@@ -19,12 +19,6 @@ export interface Patch {
   large: string | null;
 }
 
-// --- Otros Tipos Independientes ---
-export interface HeroImageData {
-  url: string;
-  title: string;
-  description: string;
-}
 // datos especificos del cohete
 export interface Rocket {
   id: string;

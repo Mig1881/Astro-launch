@@ -34,7 +34,7 @@ export default function ContactPage() {
   const enviarDatos = (data: ContactFormData) => {
     setEnviando(true);
 
-    // Simula una espera de red o transmision de 1.5 segundos
+    // Simula una espera de red o envio de 1.5 segundos
     setTimeout(() => {
       //esto seria el fetch, lo envio a consola para control/depuracion  
       console.log("Formulario válido y enviado:", data);
@@ -129,7 +129,7 @@ export default function ContactPage() {
               rows={5}
               placeholder="Escribe aqui tu consulta..."
               {...register("message", { 
-                required: "No puedes enviar una transmisión vacía",
+                required: "No puedes enviar un mensaje vacío",
                 minLength: { value: 10, message: "El mensaje es muy corto (mínimo 10 caracteres)" }
               })}
             ></textarea>
@@ -149,7 +149,7 @@ export default function ContactPage() {
 
           {/* BOTÓN DE ENVÍO Si 'enviando' es true, el botón se bloquea (se pone gris/inactivo) disabled={enviando}*/}
           <button type="submit" className="submit-btn" disabled={enviando}>
-            {/*¿está enviando? SI -> Escribe "Transmitiendo..."(durante 1,5 sg que he puesto antes simulando transmision) NO -> Escribe "Iniciar Transmisión" */}
+            {/*¿está enviando? SI -> Escribe "Enviando..."(durante 1,5 sg que he puesto antes simulando transmision) NO -> Escribe "Iniciar Transmisión" */}
             {enviando ? "Enviando..." : "Enviar mensaje 🚀"}
           </button>
         

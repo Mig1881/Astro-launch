@@ -20,14 +20,12 @@ export default function LaunchList() {
 
 
   useEffect(() => {
-    // Usamos la constante importada para la URL
     fetch(API_ENDPOINTS.LAUNCHES)
       .then((response) => {
         if (!response.ok) throw new Error();
         return response.json();
       })
       .then((data: Launch[]) => {
-        // Guardamos los datos y quitamos el estado de carga
         setLaunches(data);
         setLoading(false);
         // Para probar el spinner simulo que la conexión tarda 8 segundos
@@ -42,23 +40,18 @@ export default function LaunchList() {
       });
   }, []);
 
-  // Si está cargando..
   if (loading) return <LoadingSpinner />;
   
-  // Si hay error..
   if (error) return <ErrorMessage message={error} />;
 
     //Procesamiento de datos
 
-  // 1. Empiezo con todos los datos
+ 
   let resultado = launches;
-  //filter modifica el array resultado despues de haberlo recorrido elemento a elemento
-  // 2. Filtrado combinado por nombre y Estado
+  //Filtrado combinado por nombre y Estado
   resultado = resultado.filter(lanzamiento => {
-    //convierto el nombre del cohete como lo que el usuario ha escrito a minusculas
     const nombreEnMinusculas = lanzamiento.name.toLowerCase();
     const busquedaEnMinusculas = searchTerm.toLowerCase();
-    //includes pregunta si una cadena de texto esta dentro de otra
     const coincideNombre = nombreEnMinusculas.includes(busquedaEnMinusculas);
     
     //Lógica de Estado, si es success, failure o por defecto all
@@ -68,26 +61,25 @@ export default function LaunchList() {
     } else if (filterStatus === "failure") {
       coincideEstado = lanzamiento.success === false;
     }
-    //El lanzamiento debe cumplir AMBAS condiciones
     //el return si devuelve true: el lanzamiento se guarada en la nueva lista si false se decarta
     return coincideNombre && coincideEstado;
     
   });
 
-// 3. Ordeno el resultado del filtro
+//Ordeno el resultado del filtro(a= 2010, b= 2012)
   resultado.sort((a, b) => {
     //convierto la fecha a numero, los milisegundos que han pasado desde el año 1970
     const tiempoA = new Date(a.date_utc).getTime();
     const tiempoB = new Date(b.date_utc).getTime();
 
     if (sortOrder === "asc") {
-      return tiempoA - tiempoB; // El numero mas pequeño(fechas mas vieja) va primero
+      return tiempoA - tiempoB; // El numero mas pequeño(fechas mas vieja) va primero(a<b negativo, por lo que a va antes, ascendente)
     } else {
-      return tiempoB - tiempoA; // El numero mas grande(fecha mas reciente) va primero
+      return tiempoB - tiempoA; // El numero mas grande(fecha mas reciente) va primero(b>a positivo, por lo que va despues, descendente)
     }
   });
 
-// 4. Guardo el resultado final
+//Guardo el resultado final
 const filteredLaunches = resultado;
 
 

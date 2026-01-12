@@ -34,7 +34,7 @@ export default function LaunchDetailPage() {
       .then((launchData: Launch) => {
         //Guardos los datos de la mision en el estado
         setLaunch(launchData);
-        // GUARDAMOS el ID aquí mismo para usarlo más adelante
+        // GUARDO el ID aquí mismo para usarlo más adelante
         launchpadId = launchData.launchpad;
 
         //Cuando estamos dentro de un then poner un return delante del fetch es fundamental
@@ -53,19 +53,19 @@ export default function LaunchDetailPage() {
       return fetch(`${API_ENDPOINTS.LAUNCHPADS}/${launchpadId}`);
         
       })
-    .then((res) => {
-      if (!res.ok) throw new Error("Plataforma no encontrada");
-      return res.json();
-    })
-    .then((padData: Launchpad) => {
-      // Guardo la plataforma y terminamos la carga
-      setLaunchpad(padData);
-      setLoading(false);
-    })
-    .catch((err) => {
-      setError(err.message);
-      setLoading(false);
-    });
+      .then((res) => {
+        if (!res.ok) throw new Error("Plataforma no encontrada");
+        return res.json();
+      })
+      .then((padData: Launchpad) => {
+        // Guardo la plataforma y terminamos la carga
+        setLaunchpad(padData);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
 
   // Si el ID cambia, se vuelve a ejecutar todo.
 }, [id]);

@@ -6,7 +6,6 @@ type Props = {
   launch: Launch;
 };
 
-// Exportamos la función directamente 
 export default function LaunchCard({ launch }: Props) {
   // Si existe la imagen del parche lo uso. Si es null o undefined, uso el placeholder que he puesto en assets
   const imageUrl = launch.links.patch.small || defaultPlaceholder;
