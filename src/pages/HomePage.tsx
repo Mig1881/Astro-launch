@@ -1,12 +1,12 @@
 import React from 'react';
-import ApodHero from '../components/layout/LaunchHero';
+import LaunchHero from '../components/layout/LaunchHero';
 import LaunchList from '../components/LaunchList';
 
 const HomePage: React.FC = () => {
   return (
     <main className="page-container">
       {/* 1. Impacto visual inmediato */}
-      <ApodHero />
+      <LaunchHero />
       
       {/* 2. Contenido principal */}
       <section className="launches-section">

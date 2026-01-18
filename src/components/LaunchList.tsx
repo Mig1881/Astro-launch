@@ -17,8 +17,6 @@ export default function LaunchList() {
   //Añado otro estado: "all", "success" o "failure"
   const [filterStatus, setFilterStatus] = useState("all");
   
-
-
   useEffect(() => {
     fetch(API_ENDPOINTS.LAUNCHES)
       .then((response) => {
@@ -44,9 +42,7 @@ export default function LaunchList() {
   
   if (error) return <ErrorMessage message={error} />;
 
-    //Procesamiento de datos
-
- 
+  //Procesamiento de datos
   let resultado = launches;
   //Filtrado combinado por nombre y Estado
   resultado = resultado.filter(lanzamiento => {
@@ -81,12 +77,9 @@ export default function LaunchList() {
 
 //Guardo el resultado final
 const filteredLaunches = resultado;
-
-
-  
   return (
     <section>
-      {/* Componente de búsqueda pasamos estados de busqueda y ordenacion */}
+      {/* Componente de búsqueda pasamos estados de busqueda, estado de la mision y ordenacion */}
       <SearchControls 
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}

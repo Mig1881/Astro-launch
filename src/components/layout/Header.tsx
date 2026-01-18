@@ -10,7 +10,6 @@ export default function Header() {
   
       <nav className="main-nav">
         <Link to="/">Inicio</Link>
-        {/* Aquí se pueden ir añadiendo mas links */}
         <Link to="/contact">Contacto</Link>
         
         <ThemeToggle />
