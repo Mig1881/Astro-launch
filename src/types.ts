@@ -38,3 +38,9 @@ export interface Launchpad {
   latitude: number;
   longitude: number;
 }
+// Datos del Usuario Autenticado
+export interface User {
+  id: number;
+  email: string;
+  role: string;
+}
