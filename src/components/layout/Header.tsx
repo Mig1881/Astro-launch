@@ -1,7 +1,21 @@
-import { Link } from "react-router-dom";
-import ThemeToggle from "../ThemeToggle";
+import { Link, useNavigate } from "react-router-dom";
+import ThemeToggle from "../ThemeToggle"; 
+import type { User } from "../../types"; 
 
-export default function Header() {
+interface HeaderProps {
+  token: string | null;
+  user: User | null;
+  onLogout: () => void;
+}
+
+export default function Header({ token, user, onLogout }: HeaderProps) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    onLogout();
+    navigate("/"); 
+  };
+
   return (
     <header className="main-header">
       <Link to="/" className="logo-link">
@@ -11,6 +25,30 @@ export default function Header() {
       <nav className="main-nav">
         <Link to="/">Inicio</Link>
         <Link to="/contact">Contacto</Link>
+        
+        {/* RENDERIZADO CONDICIONAL DE SESIÓN */}
+        {token ? (
+          <>
+            <span style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+              Piloto: <strong style={{ color: "var(--accent-color)" }}>{user?.email.split('@')[0]}</strong>
+            </span>
+            <button 
+              onClick={handleLogout} 
+              className="map-button" 
+              style={{ padding: "0.4rem 1rem", fontSize: "0.9rem", cursor: "pointer" }}
+            >
+              Salir
+            </button>
+          </>
+        ) : (
+          <Link 
+            to="/login" 
+            className="map-button" 
+            style={{ padding: "0.4rem 1rem", fontSize: "0.9rem" }}
+          >
+            Iniciar Sesión
+          </Link>
+        )}
         
         <ThemeToggle />
       </nav>

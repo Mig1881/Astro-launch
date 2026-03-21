@@ -528,3 +528,25 @@ body.light-mode .map-frame {
   color: var(--accent-color); 
   font-size: 1.1rem;
 }
+/* Animaciones*/
+
+@keyframes takeoff {
+  0% { 
+    transform: translateY(0) scale(1); 
+  }
+  30% { 
+    transform: translateY(5px) scale(0.9);
+  }
+  100% { 
+    transform: translateY(-100vh) scale(1.5); 
+    opacity: 0; 
+  }
+}
+
+.anim-takeoff {
+  display: inline-block;
+  animation: takeoff 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  /* position relative y z-index alto para que pase por encima de todo */
+  position: relative;
+  z-index: 9999;
+}
