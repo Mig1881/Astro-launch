@@ -25,6 +25,11 @@ export default function Header({ token, user, onLogout }: HeaderProps) {
       <nav className="main-nav">
         <Link to="/">Inicio</Link>
         <Link to="/contact">Contacto</Link>
+        {user?.role === 'admin' && (
+          <Link to="/admin" style={{ color: "var(--error-color)", fontWeight: "bold" }}>
+            🛡️ Admin
+          </Link>
+        )}
         
         {/* RENDERIZADO CONDICIONAL DE SESIÓN */}
         {token ? (

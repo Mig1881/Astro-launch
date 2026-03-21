@@ -13,12 +13,6 @@
       "role": "user"
     },
     {
-      "id": 3,
-      "email": "prueba@prueba.com",
-      "password": "user",
-      "role": "user"
-    },
-    {
       "id": 4,
       "email": "nuevopiloto@gmail.com",
       "password": "nuevo",

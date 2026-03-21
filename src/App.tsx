@@ -19,6 +19,8 @@ import ContactPage from './pages/ContactPage';
 //páginas de autenticación
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import RequireRole from "./auth/RequireRole";
+import AdminPage from "./pages/AdminPage";
 
 function App() {
   const [token, setToken] = useState<string | null>(getToken());
@@ -85,6 +87,15 @@ function App() {
             <RequireAuth token={token}>
               <LaunchDetailPage />
             </RequireAuth>
+          } 
+        />
+
+        <Route 
+          path="/admin" 
+          element={
+            <RequireRole user={user} allowedRoles={["admin"]}>
+              <AdminPage />
+            </RequireRole>
           } 
         />
         
