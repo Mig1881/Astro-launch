@@ -1,31 +1,30 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-// 1. Capa de Servicios API
+//Capa de Servicios API
 import { getToken, meRequest, saveToken, clearToken } from "./auth/authApi";
 
-// 2. Guardianes de Rutas (Filtros de Seguridad)
+//Guardianes de Rutas (Filtros de Seguridad)
 import RequireAuth from "./auth/RequireAuth";
-// import RequireRole from "./auth/RequireRole"; // Lo usaremos cuando hagamos la página de Admin
 
-// 3. Tipos
+//Tipos
 import type { User } from "./types";
 
-// 4. Componentes y Páginas
+//Componentes y Páginas
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
-import LaunchDetailPage from './pages/LaunchDetailPage.tsx';
-import ContactPage from './pages/ContactPage.tsx';
+import LaunchDetailPage from './pages/LaunchDetailPage';
+import ContactPage from './pages/ContactPage';
+//páginas de autenticación
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 
 function App() {
-  // --- ESTADO GLOBAL (Single Source of Truth / Contexto de Sesión) ---
   const [token, setToken] = useState<string | null>(getToken());
   const [user, setUser] = useState<User | null>(null);
   const [loadingSession, setLoadingSession] = useState<boolean>(true);
 
-  // --- LÓGICA DE SESIÓN (Controladores) ---
-  // Equivalente a preguntar a la base de datos: "¿Este token sigue siendo válido?"
   const refreshMe = async (currentToken: string) => {
     try {
       const userData = await meRequest(currentToken);
@@ -49,7 +48,6 @@ function App() {
     setUser(null);
   };
 
-  // --- CICLO DE VIDA (Al arrancar la aplicación) ---
   useEffect(() => {
     if (token) {
       refreshMe(token);
@@ -58,28 +56,29 @@ function App() {
     }
   }, [token]);
 
-  // Pantalla de carga (Para que no parpadee la app mientras comprueba el token)
   if (loadingSession) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <h2 className="text-2xl font-bold">Iniciando sistemas de la nave... 🚀</h2>
+        <h2 className="text-2xl font-bold" style={{ textAlign: "center", marginTop: "5rem" }}>
+          Iniciando sistemas de la nave... 🚀
+        </h2>
       </div>
     );
   }
 
-  // --- VISTA (El Router) ---
   return (
     <BrowserRouter>
-      {/* Al Header le pasaremos mañana el usuario para que muestre el botón de Login o el nombre del usuario */}
-      <Header />
+      {/* Le paso las variables de sesión al Header */}
+      <Header token={token} user={user} onLogout={logout} />
       
       <Routes>
-        {/* 1. RUTAS PÚBLICAS (El Escaparate de la Landing Page) */}
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<HomePage key={token ? "con-sesion" : "sin-sesion"} />} />
         <Route path="/contact" element={<ContactPage />} />
         
-        {/* 2. RUTAS PROTEGIDAS (Solo usuarios registrados) */}
-        {/* Envolvemos la página de detalles con el filtro. Si no hay token, te expulsa. */}
+        {/*Rutas de Login y Registro. Les pao la función 'login' para que avisen al padre al terminar */}
+        <Route path="/login" element={<LoginPage onLogin={login} />} />
+        <Route path="/register" element={<RegisterPage onLogin={login} />} />
+        
         <Route 
           path="/launch/:id" 
           element={

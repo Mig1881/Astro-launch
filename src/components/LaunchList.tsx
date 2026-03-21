@@ -1,24 +1,42 @@
 import { useEffect, useState } from "react";
+// NUEVO: Importamos Link para poder hacer los botones de navegación
+import { Link } from "react-router-dom"; 
 import type { Launch } from "../types";
 import { API_ENDPOINTS } from "../services/SpaceXAPI";
 import LaunchCard from "./LaunchCard";
 import LoadingSpinner from "./LoadingSpinner";
 import ErrorMessage from "./ErrorMessage";
 import SearchControls from "./SearchControls";
-
+import { getToken } from "../auth/authApi"; 
 
 export default function LaunchList() {
   const [launches, setLaunches] = useState<Launch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  //Añado dos estados mas para busqueda y ordenacion
+  
+  //Añado un estado para saber si es un visitante sin registrar
+  const [isGuest, setIsGuest] = useState(false);
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
-  //Añado otro estado: "all", "success" o "failure"
   const [filterStatus, setFilterStatus] = useState("all");
   
   useEffect(() => {
-    fetch(API_ENDPOINTS.LAUNCHES)
+    const token = getToken();
+
+    if (!token) {
+      // No lanzo un error, implemento el estado de invitado o visitante sin registrar
+      setIsGuest(true);
+      setLoading(false);
+      return;
+    }
+
+    fetch(API_ENDPOINTS.LAUNCHES, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
       .then((response) => {
         if (!response.ok) throw new Error();
         return response.json();
@@ -26,11 +44,6 @@ export default function LaunchList() {
       .then((data: Launch[]) => {
         setLaunches(data);
         setLoading(false);
-        // Para probar el spinner simulo que la conexión tarda 8 segundos
-        // setTimeout(() => {
-        //   setLaunches(data);
-        //   setLoading(false);
-        // }, 8000); 
       })
       .catch(() => {
         setError("No se pudieron cargar los lanzamientos de SpaceX 🚀");
@@ -40,46 +53,65 @@ export default function LaunchList() {
 
   if (loading) return <LoadingSpinner />;
   
+  // Si hay un error REAL del servidor, lo mostramos
   if (error) return <ErrorMessage message={error} />;
 
-  //Procesamiento de datos
+  //Si es un invitado, renderizo la tarjeta de bienvenida
+  if (isGuest) {
+    return (
+      <div style={{
+        backgroundColor: "var(--card-bg)",
+        border: "1px solid var(--border-color)",
+        borderRadius: "12px",
+        padding: "4rem 2rem",
+        textAlign: "center",
+        marginTop: "1rem"
+      }}>
+        <h2 style={{ fontSize: "2rem", marginBottom: "1rem" }}>Únete a la tripulación espacial 👩‍🚀👨‍🚀</h2>
+        <p style={{ color: "var(--text-secondary)", fontSize: "1.1rem", marginBottom: "2.5rem", maxWidth: "600px", margin: "0 auto" }}>
+          Los expedientes de las misiones están clasificados. Inicia sesión o solicita acceso a la base para consultar en tiempo real todos los datos de SpaceX.
+        </p>
+        <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center", flexWrap: "wrap", marginTop: "2rem" }}>
+          {/* Botón secundario (bordeado) */}
+          <Link to="/login" className="map-button" style={{ padding: "0.8rem 2rem", fontSize: "1.1rem" }}>
+            Iniciar Sesión
+          </Link>
+          {/* Botón principal (relleno sólido). Le ponemos width auto para sobreescribir el 100% de App.css */}
+          <Link to="/register" className="submit-btn" style={{ width: "auto", padding: "0.8rem 2rem", fontSize: "1.1rem" }}>
+            Solicitar Acceso
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // --- LÓGICA DE USUARIOS LOGUEADOS ---
   let resultado = launches;
-  //Filtrado combinado por nombre y Estado
+  
   resultado = resultado.filter(lanzamiento => {
     const nombreEnMinusculas = lanzamiento.name.toLowerCase();
     const busquedaEnMinusculas = searchTerm.toLowerCase();
     const coincideNombre = nombreEnMinusculas.includes(busquedaEnMinusculas);
     
-    //Lógica de Estado, si es success, failure o por defecto all
     let coincideEstado = true;
     if (filterStatus === "success") {
       coincideEstado = lanzamiento.success === true;
     } else if (filterStatus === "failure") {
       coincideEstado = lanzamiento.success === false;
     }
-    //el return si devuelve true: el lanzamiento se guarada en la nueva lista si false se decarta
     return coincideNombre && coincideEstado;
-    
   });
 
-//Ordeno el resultado del filtro(a= 2010, b= 2012)
   resultado.sort((a, b) => {
-    //convierto la fecha a numero, los milisegundos que han pasado desde el año 1970
     const tiempoA = new Date(a.date_utc).getTime();
     const tiempoB = new Date(b.date_utc).getTime();
-
-    if (sortOrder === "asc") {
-      return tiempoA - tiempoB; // El numero mas pequeño(fechas mas vieja) va primero(a<b negativo, por lo que a va antes, ascendente)
-    } else {
-      return tiempoB - tiempoA; // El numero mas grande(fecha mas reciente) va primero(b>a positivo, por lo que va despues, descendente)
-    }
+    return sortOrder === "asc" ? tiempoA - tiempoB : tiempoB - tiempoA;
   });
 
-//Guardo el resultado final
-const filteredLaunches = resultado;
+  const filteredLaunches = resultado;
+
   return (
     <section>
-      {/* Componente de búsqueda pasamos estados de busqueda, estado de la mision y ordenacion */}
       <SearchControls 
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
@@ -88,20 +120,19 @@ const filteredLaunches = resultado;
         filterStatus={filterStatus}      
         onFilterChange={setFilterStatus} 
       />
-      {/* Feedback: Se muestra el contador si hay resultados */}
+      
       {filteredLaunches.length > 0 && (
         <p className="results-counter">
           Se han encontrado <strong>{filteredLaunches.length}</strong> lanzamientos:
         </p>
       )}
-      {/* map por cada mision que encuentra(launch) ejecuta el componente */}
+      
       <div className="launch-list-grid">
         {filteredLaunches.map((launch) => (
           <LaunchCard key={launch.id} launch={launch} />
         ))}
       </div>
 
-      {/* Feedback si no hay resultados */}
       {filteredLaunches.length === 0 && (
         <div className="no-results-box">
           <h3>🔭 No se encontraron misiones</h3>
@@ -110,4 +141,4 @@ const filteredLaunches = resultado;
       )}
     </section>
   );
-};
+}
