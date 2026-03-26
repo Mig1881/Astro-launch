@@ -21,6 +21,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import RequireRole from "./auth/RequireRole";
 import AdminPage from "./pages/AdminPage";
+import PressDashboard from "./pages/PressDashBoard";
 
 function App() {
   const [token, setToken] = useState<string | null>(getToken());
@@ -95,6 +96,14 @@ function App() {
           element={
             <RequireRole user={user} allowedRoles={["admin"]}>
               <AdminPage />
+            </RequireRole>
+          } 
+        />
+        <Route 
+          path="/prensa" 
+          element={
+            <RequireRole user={user} allowedRoles={["prensa"]}>
+              <PressDashboard />
             </RequireRole>
           } 
         />
