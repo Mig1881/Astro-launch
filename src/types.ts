@@ -8,6 +8,8 @@ export interface Launch {
   rocket: string;
   launchpad: string | null;
   success: boolean | null;
+  payloads?: string[]; 
+  crew?: any[];
 }
 
 export interface Links {

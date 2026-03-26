@@ -30,6 +30,11 @@ export default function Header({ token, user, onLogout }: HeaderProps) {
             🛡️ Admin
           </Link>
         )}
+        {user?.role === 'prensa' && (
+          <Link to="/prensa" style={{ color: "#3b82f6", fontWeight: "bold" }}>
+            📰 Sala de Prensa
+          </Link>
+        )}
         
         {/* RENDERIZADO CONDICIONAL DE SESIÓN */}
         {token ? (

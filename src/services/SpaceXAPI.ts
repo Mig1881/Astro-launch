@@ -6,6 +6,9 @@ export const API_ENDPOINTS = {
   ROCKETS: `${BASE_URL}/rockets`,
   //Para saber los datos de la plataforma de lanzamiento(localidad, region y coordenadas)
   LAUNCHPADS: `${BASE_URL}/launchpads`,
+  // --- NUEVOS ENDPOINTS ---
+  PAYLOADS: `${BASE_URL}/payloads`, 
+  CREW: `${BASE_URL}/crew`,
   // URL base para el servicio de mapas externo, no require API key, y sirve para hechar un vsitazo de donde esta el lanzamiento
   MAP_SERVICE: "https://www.openstreetmap.org/export/embed.html",
   // Servicio de navegación de Google (Para el botón externo)

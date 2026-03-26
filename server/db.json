@@ -13,13 +13,13 @@
       "role": "user"
     },
     {
-      "id": 4,
+      "id": 3,
       "email": "nuevopiloto@gmail.com",
       "password": "nuevo",
       "role": "user"
     },
     {
-      "id": 3,
+      "id": 4,
       "email": "prensa@spacex.com",
       "password": "prensa123",
       "role": "prensa"
