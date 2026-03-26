@@ -74,3 +74,26 @@ export const deleteUserRequest = async (id: number, token: string) => {
   if (!response.ok) throw new Error("Error al borrar el usuario");
   return response.json();
 };
+
+// --- Endpoints para el Panel de Prensa ---
+export const getCrewRequest = async (token: string) => {
+  const response = await fetch(`${BASE_URL}/crew`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+  if (!response.ok) throw new Error("Error al obtener la tripulación");
+  return response.json();
+};
+
+export const getPayloadsRequest = async (token: string) => {
+  const response = await fetch(`${BASE_URL}/payloads`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+  if (!response.ok) throw new Error("Error al obtener las cargas útiles");
+  return response.json();
+};
