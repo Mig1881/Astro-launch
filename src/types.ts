@@ -44,3 +44,29 @@ export interface User {
   email: string;
   role: string;
 }
+export interface Crew {
+  id: string;
+  name: string;
+  agency: string;
+  image: string;
+  wikipedia: string;
+  launches: string[];
+  status: string;
+}
+
+export interface Payload {
+  id: string;
+  name: string;
+  type: string;
+  reused: boolean;
+  launch: string;
+  customers: string[];
+  norad_ids: number[];
+  nationalities: string[];
+  manufacturers: string[];
+  mass_kg: number | null; // A veces es null en misiones secretas
+  mass_lbs: number | null;
+  orbit: string;
+  reference_system: string;
+  regime: string;
+}
