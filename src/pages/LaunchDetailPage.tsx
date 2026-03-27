@@ -82,8 +82,47 @@ export default function LaunchDetailPage() {
       <Link to="/" className="back-link">← Volver al listado</Link>
       
       <div className="detail-grid">
-        <div className="detail-image-container">
-          <img src={launch.links.patch.large || placeholderImg} alt={launch.name} />
+        
+        <div className="left-column">
+          <div className="detail-image-container">
+            <img src={launch.links.patch.large || placeholderImg} alt={launch.name} />
+          </div>
+
+          {crewMembers.length > 0 && (
+            <div className="info-box" style={{ marginTop: '1.5rem', borderLeftColor: '#3b82f6' }}>
+              <h3>👩‍🚀 Tripulación ({crewMembers.length})</h3>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem', justifyContent: 'center' }}>
+                {crewMembers.map(astronaut => (
+                  <div key={astronaut.id} style={{ textAlign: 'center', width: '80px' }}>
+                    {/* Envolvemos la imagen y el nombre en enlaces */}
+                    <a 
+                      href={astronaut.wikipedia} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      title={`Leer sobre ${astronaut.name} en Wikipedia`}
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <img 
+                        src={astronaut.image} 
+                        alt={astronaut.name} 
+                        style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--accent-color)', cursor: 'pointer' }}
+                      />
+                      <p style={{ 
+                        fontSize: '0.8rem', 
+                        marginTop: '0.5rem', 
+                        lineHeight: '1.2', 
+                        color: 'var(--text-primary)',
+                        textDecoration: 'underline',
+                        textDecorationColor: 'var(--accent-color)'
+                      }}>
+                        {astronaut.name}
+                      </p>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="detail-info">
@@ -95,29 +134,11 @@ export default function LaunchDetailPage() {
           </div>
 
           {payload && (
-            <div className="info-box" style={{ borderLeft: '4px solid #f59e0b' }}>
+            <div className="info-box" style={{ borderLeftColor: '#f59e0b' }}>
               <h3>🛰️ Carga Útil: {payload.name}</h3>
               <p><strong>Tipo:</strong> {payload.type}</p>
               <p><strong>Órbita de destino:</strong> {payload.orbit}</p>
               {payload.mass_kg && <p><strong>Masa:</strong> {payload.mass_kg.toLocaleString()} kg</p>}
-            </div>
-          )}
-
-          {crewMembers.length > 0 && (
-            <div className="info-box" style={{ borderLeft: '4px solid #3b82f6' }}>
-              <h3>👩‍🚀 Tripulación ({crewMembers.length})</h3>
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
-                {crewMembers.map(astronaut => (
-                  <div key={astronaut.id} style={{ textAlign: 'center', width: '80px' }}>
-                    <img 
-                      src={astronaut.image} 
-                      alt={astronaut.name} 
-                      style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--accent-color)' }}
-                    />
-                    <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', lineHeight: '1.2' }}>{astronaut.name}</p>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
 
@@ -145,6 +166,7 @@ export default function LaunchDetailPage() {
             <p><strong>Fecha:</strong> {new Date(launch.date_utc).toLocaleDateString()}</p>
           </div>
         </div>
+
       </div>
     </main>
   );
