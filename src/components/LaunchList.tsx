@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-// NUEVO: Importamos Link para poder hacer los botones de navegación
 import { Link } from "react-router-dom"; 
 import type { Launch } from "../types";
 import { API_ENDPOINTS } from "../services/SpaceXAPI";
@@ -25,7 +24,6 @@ export default function LaunchList() {
     const token = getToken();
 
     if (!token) {
-      // No lanzo un error, implemento el estado de invitado o visitante sin registrar
       setIsGuest(true);
       setLoading(false);
       return;
@@ -52,31 +50,20 @@ export default function LaunchList() {
   }, []);
 
   if (loading) return <LoadingSpinner />;
-  
-  // Si hay un error REAL del servidor, lo mostramos
   if (error) return <ErrorMessage message={error} />;
 
-  //Si es un invitado, renderizo la tarjeta de bienvenida
+  // Si es un invitado, renderizo la tarjeta de bienvenida limpia con clases CSS
   if (isGuest) {
     return (
-      <div style={{
-        backgroundColor: "var(--card-bg)",
-        border: "1px solid var(--border-color)",
-        borderRadius: "12px",
-        padding: "4rem 2rem",
-        textAlign: "center",
-        marginTop: "1rem"
-      }}>
-        <h2 style={{ fontSize: "2rem", marginBottom: "1rem" }}>Únete a la tripulación espacial 👩‍🚀👨‍🚀</h2>
-        <p style={{ color: "var(--text-secondary)", fontSize: "1.1rem", marginBottom: "2.5rem", maxWidth: "600px", margin: "0 auto" }}>
+      <div className="guest-welcome-card">
+        <h2 className="guest-welcome-title">Únete a la tripulación espacial 👩‍🚀👨‍🚀</h2>
+        <p className="guest-welcome-text">
           Los expedientes de las misiones están clasificados. Inicia sesión o solicita acceso a la base para consultar en tiempo real todos los datos de SpaceX.
         </p>
-        <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center", flexWrap: "wrap", marginTop: "2rem" }}>
-          {/* Botón secundario (bordeado) */}
+        <div className="guest-actions">
           <Link to="/login" className="map-button" style={{ padding: "0.8rem 2rem", fontSize: "1.1rem" }}>
             Iniciar Sesión
           </Link>
-          {/* Botón principal (relleno sólido). Le ponemos width auto para sobreescribir el 100% de App.css */}
           <Link to="/register" className="submit-btn" style={{ width: "auto", padding: "0.8rem 2rem", fontSize: "1.1rem" }}>
             Solicitar Acceso
           </Link>
@@ -110,8 +97,37 @@ export default function LaunchList() {
 
   const filteredLaunches = resultado;
 
+// --- MÉTRICAS DEL DASHBOARD DEL PILOTO ---
+  const totalLaunches = launches.length;
+  // Calculamos las misiones que tienen el array 'crew' con al menos 1 astronauta
+  const crewedLaunches = launches.filter(l => l.crew && l.crew.length > 0).length;
+  const successfulLaunches = launches.filter(l => l.success === true).length;
+  const successRate = totalLaunches > 0 ? Math.round((successfulLaunches / totalLaunches) * 100) : 0;
+
   return (
     <section>
+      {/* --- DASHBOARD DEL PILOTO --- */}
+      <div className="dashboard-metrics-grid">
+        <div className="metric-card border-accent">
+          <h3 className="metric-title">Total Misiones</h3>
+          <p className="metric-value text-primary">{totalLaunches}</p>
+        </div>
+        
+        {/* NUEVA TARJETA: MISIONES TRIPULADAS */}
+        <div className="metric-card border-info">
+          <h3 className="metric-title">Misiones Tripuladas</h3>
+          <p className="metric-value text-info">{crewedLaunches}</p>
+        </div>
+
+        <div className="metric-card border-success">
+          <h3 className="metric-title">Misiones Exitosas</h3>
+          <p className="metric-value text-success">{successfulLaunches}</p>
+        </div>
+        <div className="metric-card border-warning">
+          <h3 className="metric-title">Tasa de Éxito</h3>
+          <p className="metric-value text-warning">{successRate}%</p>
+        </div>
+      </div>
       <SearchControls 
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}

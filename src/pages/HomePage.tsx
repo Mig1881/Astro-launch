@@ -10,7 +10,7 @@ const HomePage: React.FC = () => {
       
       {/* 2. Contenido principal */}
       <section className="launches-section">
-        <h2>Próximos Lanzamientos</h2>
+        <h2 className="section-title">Registro Histórico de Lanzamientos SpaceX </h2>
         <LaunchList />
       </section>
     </main>
