@@ -3,9 +3,12 @@ type Props = {
   onSearchChange: (value: string) => void;
   sortOrder: string;
   onSortChange: (value: string) => void;
-  //Añado nuevas PROPS para implemntar filtro por estado de la mision(exito o fallo)
+  // Filtro por estado de la mision (exito o fallo)
   filterStatus: string;
   onFilterChange: (value: string) => void;
+  // NUEVAS PROPS para implementar filtro por tripulación
+  crewFilter: string;
+  onCrewFilterChange: (value: string) => void;
 };
 
 export default function SearchControls({
@@ -15,9 +18,11 @@ export default function SearchControls({
   onSortChange,
   filterStatus,
   onFilterChange,
+  crewFilter,         // <-- Añadido
+  onCrewFilterChange, // <-- Añadido
 }: Props) {
   return (
-    <div className="search-controls-container">
+    <div className="search-controls-container" style={{ flexWrap: 'wrap' }}>
       {/* Input de búsqueda */}
       <input
         type="text"
@@ -25,7 +30,9 @@ export default function SearchControls({
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
         className="search-input"
+        style={{ flex: '1 1 200px' }} // Para que no se aplaste al poner 4 controles
       />
+      
       {/* Selector de Filtro por Estado */}
       <select
         value={filterStatus}
@@ -36,6 +43,18 @@ export default function SearchControls({
         <option value="success">✅ Solo Éxitos</option>
         <option value="failure">❌ Solo Fallos</option>
       </select>
+
+      {/* NUEVO: Selector de Filtro por Tripulación */}
+      <select
+        value={crewFilter}
+        onChange={(e) => onCrewFilterChange(e.target.value)}
+        className="sort-select"
+      >
+        <option value="all">Toda la flota</option>
+        <option value="crewed">👩‍🚀 Solo Tripuladas</option>
+        <option value="uncrewed">🛰️ Solo Cargas Útiles</option>
+      </select>
+
       {/* Selector de ordenación */}
       <select
         value={sortOrder}

@@ -19,6 +19,7 @@ export default function LaunchList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [crewFilter, setCrewFilter] = useState("all");
   
   useEffect(() => {
     const token = getToken();
@@ -76,17 +77,29 @@ export default function LaunchList() {
   let resultado = launches;
   
   resultado = resultado.filter(lanzamiento => {
+    // 1. Filtro por texto
     const nombreEnMinusculas = lanzamiento.name.toLowerCase();
     const busquedaEnMinusculas = searchTerm.toLowerCase();
     const coincideNombre = nombreEnMinusculas.includes(busquedaEnMinusculas);
     
+    // 2. Filtro por Estado (Éxito/Fallo)
     let coincideEstado = true;
     if (filterStatus === "success") {
       coincideEstado = lanzamiento.success === true;
     } else if (filterStatus === "failure") {
       coincideEstado = lanzamiento.success === false;
     }
-    return coincideNombre && coincideEstado;
+
+    // 3. Filtro por Tripulación
+    let coincideTripulacion = true;
+    if (crewFilter === "crewed") {
+      coincideTripulacion = !!lanzamiento.crew && lanzamiento.crew.length > 0;
+    } else if (crewFilter === "uncrewed") {
+      coincideTripulacion = !lanzamiento.crew || lanzamiento.crew.length === 0;
+    }
+
+    // la misión tiene que pasar TODOS los filtros
+    return coincideNombre && coincideEstado && coincideTripulacion;
   });
 
   resultado.sort((a, b) => {
@@ -134,7 +147,9 @@ export default function LaunchList() {
         sortOrder={sortOrder}
         onSortChange={setSortOrder}
         filterStatus={filterStatus}      
-        onFilterChange={setFilterStatus} 
+        onFilterChange={setFilterStatus}
+        crewFilter={crewFilter}
+        onCrewFilterChange={setCrewFilter}
       />
       
       {filteredLaunches.length > 0 && (
