@@ -59,7 +59,7 @@ export default function LaunchMap({ latitude, longitude, locationName }: Props) 
         <a 
           href={googleMapsUrl} 
           target="_blank" 
-          rel="noreferrer"
+          rel="noopener noreferrer"
           className="map-button"
         >
           Explorar en Google Maps 🚀
