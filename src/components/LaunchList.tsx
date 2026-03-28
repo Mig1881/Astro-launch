@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom"; 
 import type { Launch } from "../types";
-import { API_ENDPOINTS } from "../services/SpaceXAPI";
+import { getLaunchesRequest } from "../services/SpaceXAPI";
 import LaunchCard from "./LaunchCard";
 import LoadingSpinner from "./LoadingSpinner";
 import ErrorMessage from "./ErrorMessage";
@@ -12,8 +12,6 @@ export default function LaunchList() {
   const [launches, setLaunches] = useState<Launch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  
-  //Añado un estado para saber si es un visitante sin registrar
   const [isGuest, setIsGuest] = useState(false);
   
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,32 +20,26 @@ export default function LaunchList() {
   const [crewFilter, setCrewFilter] = useState("all");
   
   useEffect(() => {
-    const token = getToken();
+    const fetchLaunches = async () => {
+      try {
+        const token = getToken();
+        if (!token) {
+          setIsGuest(true);
+          setLoading(false);
+          return;
+        }
 
-    if (!token) {
-      setIsGuest(true);
-      setLoading(false);
-      return;
-    }
-
-    fetch(API_ENDPOINTS.LAUNCHES, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error();
-        return response.json();
-      })
-      .then((data: Launch[]) => {
+        // Llamamos al servicio limpio
+        const data = await getLaunchesRequest(token);
         setLaunches(data);
         setLoading(false);
-      })
-      .catch(() => {
+      } catch (err) {
         setError("No se pudieron cargar los lanzamientos de SpaceX 🚀");
         setLoading(false);
-      });
+      }
+    };
+
+    fetchLaunches();
   }, []);
 
   if (loading) return <LoadingSpinner />;
