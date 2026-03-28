@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerRequest } from "../auth/authApi";
+import { useAuth } from "../context/AuthContext";
 
-interface RegisterPageProps {
-  onLogin: (token: string) => void;
-}
-
-export default function RegisterPage({ onLogin }: RegisterPageProps) {
+export default function RegisterPage() {
   const navigate = useNavigate();
+  const { dispatch } = useAuth();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -27,8 +26,8 @@ export default function RegisterPage({ onLogin }: RegisterPageProps) {
 
     try {
       const data = await registerRequest({ email, password });
-      onLogin(data.access_token); // Hacemos auto-login al registrarse
-      navigate("/"); // Redirigimos al inicio
+      dispatch({ type: 'LOGIN', payload: data.access_token });
+      navigate("/"); 
     } catch (err) {
       setError("Error al crear la cuenta. Es posible que el email ya esté en uso.");
     } finally {
