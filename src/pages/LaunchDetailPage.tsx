@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { Launch, Rocket, Launchpad, Payload, Crew } from '../types';
-import { API_ENDPOINTS } from '../services/SpaceXAPI'; 
+import { getFullLaunchDetails } from '../services/SpaceXAPI'; 
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import LaunchMap from '../components/LaunchMap';
 import placeholderImg from '../assets/placeholder-rocket.png';
-
 import { getToken } from '../auth/authApi';
 
 export default function LaunchDetailPage() {
@@ -15,7 +14,6 @@ export default function LaunchDetailPage() {
   const [launch, setLaunch] = useState<Launch | null>(null);
   const [rocket, setRocket] = useState<Rocket | null>(null);
   const [launchpad, setLaunchpad] = useState<Launchpad | null>(null);
-  
   const [payload, setPayload] = useState<Payload | null>(null);
   const [crewMembers, setCrewMembers] = useState<Crew[]>([]);
   
@@ -28,44 +26,20 @@ export default function LaunchDetailPage() {
     const fetchAllDetails = async () => {
       try {
         const token = getToken();
-        const headers = { "Authorization": `Bearer ${token}` };
+        if (!token) throw new Error("No hay token de acceso.");
 
-        // 1. Misión Principal
-        const resLaunch = await fetch(`${API_ENDPOINTS.LAUNCHES}/${id}`, { headers });
-        if (!resLaunch.ok) throw new Error("No se encontró la Misión");
-        const launchData: Launch = await resLaunch.json();
-        setLaunch(launchData);
-
-        // 2. Cohete y Plataforma
-        const pRocket = fetch(`${API_ENDPOINTS.ROCKETS}/${launchData.rocket}`, { headers }).then(r => r.json());
-        const pPad = fetch(`${API_ENDPOINTS.LAUNCHPADS}/${launchData.launchpad}`, { headers }).then(r => r.json());
-
-        // 3. Carga Útil
-        let pPayload = Promise.resolve(null);
-        if (launchData.payloads && launchData.payloads.length > 0) {
-          pPayload = fetch(`${API_ENDPOINTS.PAYLOADS}/${launchData.payloads[0]}`, { headers })
-                      .then(r => r.ok ? r.json() : null).catch(() => null);
-        }
-
-        const [rocketData, padData, payloadData] = await Promise.all([pRocket, pPad, pPayload]);
+        const data = await getFullLaunchDetails(id, token);
         
-        setRocket(rocketData);
-        setLaunchpad(padData);
-        setPayload(payloadData);
-
-        // 4. Tripulación
-        if (launchData.crew && launchData.crew.length > 0) {
-          const crewIds = launchData.crew.map((c: any) => typeof c === 'string' ? c : c.crew);
-          const crewPromises = crewIds.map(cId => 
-            fetch(`${API_ENDPOINTS.CREW}/${cId}`, { headers }).then(r => r.ok ? r.json() : null)
-          );
-          const crewResults = await Promise.all(crewPromises);
-          setCrewMembers(crewResults.filter(c => c !== null)); 
-        }
-
+        // Repartimos los datos a nuestros estados
+        setLaunch(data.launch);
+        setRocket(data.rocket);
+        setLaunchpad(data.launchpad);
+        setPayload(data.payload);
+        setCrewMembers(data.crewMembers);
+        
         setLoading(false);
       } catch (err: any) {
-        setError(err.message);
+        setError("No se pudo cargar la información clasificada de la misión.");
         setLoading(false);
       }
     };
@@ -76,6 +50,7 @@ export default function LaunchDetailPage() {
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
   if (!launch || !rocket || !launchpad) return null; 
+
 
   return (
     <main className="page-container detail-page">
