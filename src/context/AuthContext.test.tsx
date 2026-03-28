@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AuthProvider, authReducer, useAuth } from "./AuthContext";
 
-describe("1. authReducer (Testing Unitario Puro de la lógica de negocio)", () => {
+describe("1. authReducer (Test Unitario)", () => {
   const estadoInicial = {
     token: null,
     isAuthenticated: false,
