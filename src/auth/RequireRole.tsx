@@ -1,15 +1,17 @@
 import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
-import type { User } from "../types"; 
+import { useAuth } from "../context/AuthContext";
 
 interface RequireRoleProps {
-  user: User | null;
   allowedRoles: string[];
   children: ReactNode;
 }
 
 // Filtro de autorización basado en roles
-const RequireRole = ({ user, allowedRoles, children }: RequireRoleProps) => {
+const RequireRole = ({ allowedRoles, children }: RequireRoleProps) => {
+  const { state } = useAuth();
+  const { user } = state;
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }

@@ -1,18 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import ThemeToggle from "../ThemeToggle"; 
-import type { User } from "../../types"; 
+import { useAuth } from "../../context/AuthContext";
 
-interface HeaderProps {
-  token: string | null;
-  user: User | null;
-  onLogout: () => void;
-}
-
-export default function Header({ token, user, onLogout }: HeaderProps) {
+export default function Header() {
   const navigate = useNavigate();
+  const { state, dispatch } = useAuth();
+  const { token, user } = state;
 
   const handleLogout = () => {
-    onLogout();
+    dispatch({ type: 'LOGOUT' });
     navigate("/"); 
   };
 

@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { loginRequest } from "../auth/authApi";
+import { useAuth } from "../context/AuthContext";
 
-interface LoginPageProps {
-  onLogin: (token: string) => void;
-}
-
-export default function LoginPage({ onLogin }: LoginPageProps) {
+export default function LoginPage() { 
   const navigate = useNavigate();
+  const { dispatch } = useAuth();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +23,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
       //Retardo artificial para la animación mientras simulamos la conexion a la BD
       await new Promise(resolve => setTimeout(resolve, 1200));
 
-      onLogin(data.access_token); // Le paso el token a App.tsx
+      dispatch({ type: 'LOGIN', payload: data.access_token }); 
       navigate("/"); // Redirigo al inicio
     } catch (err) {
       setError("Credenciales incorrectas. Verifica tu email y contraseña.");

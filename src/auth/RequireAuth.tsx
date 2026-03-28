@@ -1,13 +1,15 @@
 import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 interface RequireAuthProps {
-  token: string | null;
   children: ReactNode;
 }
 
-const RequireAuth = ({ token, children }: RequireAuthProps) => {
-  if (!token) {
+const RequireAuth = ({ children }: RequireAuthProps) => {
+  const { state } = useAuth();
+
+  if (!state.token) {
     return <Navigate to="/login" replace />;
   }
 

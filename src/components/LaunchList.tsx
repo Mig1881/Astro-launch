@@ -6,13 +6,15 @@ import LaunchCard from "./LaunchCard";
 import LoadingSpinner from "./LoadingSpinner";
 import ErrorMessage from "./ErrorMessage";
 import SearchControls from "./SearchControls";
-import { getToken } from "../auth/authApi"; 
+import { useAuth } from "../context/AuthContext";
 
 export default function LaunchList() {
+  const { state } = useAuth();
+  const isGuest = !state.isAuthenticated; 
+
   const [launches, setLaunches] = useState<Launch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isGuest, setIsGuest] = useState(false);
   
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
@@ -22,15 +24,12 @@ export default function LaunchList() {
   useEffect(() => {
     const fetchLaunches = async () => {
       try {
-        const token = getToken();
-        if (!token) {
-          setIsGuest(true);
+        if (!state.token) {
           setLoading(false);
           return;
         }
 
-        // Llamamos al servicio limpio
-        const data = await getLaunchesRequest(token);
+        const data = await getLaunchesRequest(state.token);
         setLaunches(data);
         setLoading(false);
       } catch (err) {
@@ -40,12 +39,11 @@ export default function LaunchList() {
     };
 
     fetchLaunches();
-  }, []);
+  }, [state.token]);
 
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
 
-  // Si es un invitado, renderizo la tarjeta de bienvenida limpia con clases CSS
   if (isGuest) {
     return (
       <div className="guest-welcome-card">
