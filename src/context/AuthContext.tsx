@@ -28,7 +28,7 @@ interface AuthContextProps {
 }
 export const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-const authReducer = (state: AuthState, action: AuthAction): AuthState => {
+export const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
     case 'LOGIN':
       return { ...state, token: action.payload, isAuthenticated: true };
