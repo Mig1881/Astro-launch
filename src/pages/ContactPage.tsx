@@ -68,12 +68,13 @@ export default function ContactPage() {
         //Al enviar el formulario (onSubmit), 
         //deja que la librería lo maneje (handleSubmit) 
         //y si todo está bien, ejecuta la función (enviarDatos)
-        <form onSubmit={handleSubmit(enviarDatos)} className="contact-form">
+        <form onSubmit={handleSubmit(enviarDatos)} className="contact-form" noValidate>
           
           {/* CAMPO 1: NOMBRE */}
           <div className="form-group">
-            <label>Nombre completo</label>
+            <label htmlFor="name">Nombre completo</label>
             <input 
+              id="name" /* <-- AQUÍ ESTÁ LA MAGIA, EL ID CONECTADO AL htmlFor */
               type="text" 
               placeholder="Ej: Neil Armstrong"
               // Validaciones: Obligatorio y mínimo 3 letras, Uso de la libreria react-hook-form
@@ -89,8 +90,9 @@ export default function ContactPage() {
 
           {/* CAMPO 2: EMAIL */}
           <div className="form-group">
-            <label>Correo electrónico</label>
+            <label htmlFor="email">Correo electrónico</label>
             <input 
+              id="email"
               type="email" 
               placeholder="nombre@ejemplo.com"
               // Validación con Patrón (Regex) para email
@@ -112,8 +114,8 @@ export default function ContactPage() {
 
           {/* CAMPO 3: DEPARTAMENTO (SELECT) */}
           <div className="form-group">
-            <label>Departamento</label>
-            <select {...register("department", { required: "Selecciona un departamento" })}>
+            <label htmlFor="department">Departamento</label>
+            <select id="department" {...register("department", { required: "Selecciona un departamento" })}>
               <option value="">-- Selecciona una opción --</option>
               <option value="soporte">Soporte Técnico</option>
               <option value="prensa">Prensa y Medios</option>
@@ -124,8 +126,9 @@ export default function ContactPage() {
 
           {/* CAMPO 4: MENSAJE (TEXTAREA) */}
           <div className="form-group">
-            <label>Mensaje</label>
+            <label htmlFor="message">Mensaje</label>
             <textarea 
+              id="message" 
               rows={5}
               placeholder="Escribe aqui tu consulta..."
               {...register("message", { 
