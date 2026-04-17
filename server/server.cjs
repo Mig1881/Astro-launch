@@ -6,9 +6,8 @@ const jwt = require("jsonwebtoken");
 const server = jsonServer.create();
 const router = jsonServer.router("./server/db.json"); 
 
-server.use(bodyParser.urlencoded({ extended: true }));
-server.use(bodyParser.json());
 server.use(jsonServer.defaults());
+server.use(jsonServer.bodyParser);
 
 const SECRET_KEY = "123456789";
 const expiresIn = "1h";

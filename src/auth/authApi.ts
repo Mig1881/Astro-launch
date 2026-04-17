@@ -8,6 +8,8 @@ export interface RegisterPayload extends LoginPayload {
   role?: string; 
 }
 
+import type { User } from "../types";
+
 //Persistencia en el disco duro del navegador (localStorage)
 export const saveToken = (token: string) => localStorage.setItem("token", token);
 export const getToken = () => localStorage.getItem("token");
@@ -95,5 +97,22 @@ export const getPayloadsRequest = async (token: string) => {
     }
   });
   if (!response.ok) throw new Error("Error al obtener las cargas útiles");
+  return response.json();
+};
+
+// Actualizar el rol de un usuario
+export const updateUserRoleRequest = async (user: User, newRole: string, token: string) => {
+  const response = await fetch(`http://localhost:3000/users/${user.id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ role: newRole }), 
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al actualizar el rol del usuario");
+  }
   return response.json();
 };
