@@ -14,6 +14,14 @@ export default function PressDashboard() {
   const [activeTab, setActiveTab] = useState<"crew" | "payloads">("crew");
   const [searchTerm, setSearchTerm] = useState("");
 
+  // NUEVOS ESTADOS: Filtros para Tripulación
+  const [crewAgencyFilter, setCrewAgencyFilter] = useState("all");
+  const [crewSortOrder, setCrewSortOrder] = useState("asc");
+
+  // NUEVOS ESTADOS: Filtros para Cargas Útiles
+  const [payloadTypeFilter, setPayloadTypeFilter] = useState("all");
+  const [payloadSortOrder, setPayloadSortOrder] = useState("asc");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -41,26 +49,47 @@ export default function PressDashboard() {
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
 
-  // --- CÁLCULO DE MÉTRICAS (Componentes de resumen) ---
-  const activeAstronauts = crew.filter(c => c.status === "active").length;
-  const totalMassKg = payloads.reduce((total, p) => total + (p.mass_kg || 0), 0);
-  const totalPayloads = payloads.length; // NUEVA MÉTRICA: Total de satélites/cargas
+  // SE FILTRA PRIMERO (Antes de calcular las métricas)
+  
+  // --- FILTRADO Y ORDENACIÓN REACTIVA PARA TRIPULACIÓN ---
+  let filteredCrew = crew.filter(c => {
+    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          c.agency.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesAgency = crewAgencyFilter === "all" ? true : c.agency === crewAgencyFilter;
+    return matchesSearch && matchesAgency;
+  });
 
-  // --- FILTRADO REACTIVO PARA LA TABLA ---
-  const filteredCrew = crew.filter(c => 
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    c.agency.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  filteredCrew.sort((a, b) => {
+    return crewSortOrder === "asc" 
+      ? a.name.localeCompare(b.name) 
+      : b.name.localeCompare(a.name);
+  });
 
-  const filteredPayloads = payloads.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.type.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // --- FILTRADO Y ORDENACIÓN REACTIVA PARA CARGAS ÚTILES ---
+  let filteredPayloads = payloads.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          p.type.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = payloadTypeFilter === "all" ? true : p.type === payloadTypeFilter;
+    return matchesSearch && matchesType;
+  });
+
+  filteredPayloads.sort((a, b) => {
+    return payloadSortOrder === "asc" 
+      ? a.name.localeCompare(b.name) 
+      : b.name.localeCompare(a.name);
+  });
+
+
+  //CÁLCULO DE MÉTRICAS DINÁMICAS (Usando los arrays ya filtrados)
+  const totalCrew = filteredCrew.length;
+  const activeAstronauts = filteredCrew.filter(c => c.status === "active").length;
+  
+  const totalPayloads = filteredPayloads.length; 
+  const totalMassKg = filteredPayloads.reduce((total, p) => total + (p.mass_kg || 0), 0);
 
   return (
     <main className="page-container" style={{ marginTop: '2rem', marginBottom: '4rem' }}>
       
-
       <h2 className="section-title" style={{ color: 'var(--accent-color)', marginBottom: '0.5rem' }}>
         Centro de Prensa 📰
       </h2>
@@ -68,17 +97,15 @@ export default function PressDashboard() {
         Datos clasificados de tripulación y cargas útiles para comunicados oficiales.
       </p>
 
-
       <div className="dashboard-metrics-grid">
         <div className="metric-card border-accent">
           <h3 className="metric-title">Total Astronautas</h3>
-          <p className="metric-value text-primary">{crew.length}</p>
+          <p className="metric-value text-primary">{totalCrew}</p>
         </div>
         <div className="metric-card border-success">
           <h3 className="metric-title">Astronautas en Activo</h3>
           <p className="metric-value text-success">{activeAstronauts}</p>
         </div>
-        {/* NUEVA TARJETA: Total de Cargas */}
         <div className="metric-card border-info">
           <h3 className="metric-title">Total de Cargas Útiles</h3>
           <p className="metric-value text-info">{totalPayloads}</p>
@@ -91,37 +118,35 @@ export default function PressDashboard() {
         </div>
       </div>
 
-      {/* CONTROLES DE PESTAÑAS Y BÚSQUEDA */}
       <div className="contact-form" style={{ maxWidth: '100%', padding: '1.5rem', marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem', justifyContent: 'space-between', alignItems: 'center' }}>
-          
-          {/* Botones de Pestañas */}
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button 
-              className={activeTab === 'crew' ? 'submit-btn' : 'btn-reset'} 
-              style={{ 
-                padding: '0.6rem 1.2rem', 
-                borderRadius: '8px', 
-                border: activeTab !== 'crew' ? '1px solid var(--border-color)' : 'none', 
-                color: activeTab !== 'crew' ? 'var(--text-primary)' : 'white' 
-              }}
-              onClick={() => setActiveTab('crew')}
-            >
-              👩‍🚀 Tripulación
-            </button>
-            <button 
-              className={activeTab === 'payloads' ? 'submit-btn' : 'btn-reset'} 
-              style={{ 
-                padding: '0.6rem 1.2rem', 
-                borderRadius: '8px', 
-                border: activeTab !== 'payloads' ? '1px solid var(--border-color)' : 'none', 
-                color: activeTab !== 'payloads' ? 'var(--text-primary)' : 'white' 
-              }}
-              onClick={() => setActiveTab('payloads')}
-            >
-              🛰️ Cargas Útiles
-            </button>
-          </div>
+        {/* PESTAÑAS */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+          <button 
+            className={activeTab === 'crew' ? 'submit-btn' : 'btn-reset'} 
+            style={{ 
+              padding: '0.6rem 1.2rem', borderRadius: '8px', 
+              border: activeTab !== 'crew' ? '1px solid var(--border-color)' : 'none', 
+              color: activeTab !== 'crew' ? 'var(--text-primary)' : 'white' 
+            }}
+            onClick={() => setActiveTab('crew')}
+          >
+            👩‍🚀 Tripulación
+          </button>
+          <button 
+            className={activeTab === 'payloads' ? 'submit-btn' : 'btn-reset'} 
+            style={{ 
+              padding: '0.6rem 1.2rem', borderRadius: '8px', 
+              border: activeTab !== 'payloads' ? '1px solid var(--border-color)' : 'none', 
+              color: activeTab !== 'payloads' ? 'var(--text-primary)' : 'white' 
+            }}
+            onClick={() => setActiveTab('payloads')}
+          >
+            🛰️ Cargas Útiles
+          </button>
+        </div>
+
+        {/* CONTROLES DE BÚSQUEDA Y FILTRADO (Renderizado dinámico según la pestaña) */}
+        <div className="search-controls-container" style={{ flexWrap: 'wrap', marginBottom: '1.5rem' }}>
           
           <input 
             type="text" 
@@ -129,8 +154,62 @@ export default function PressDashboard() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
-            style={{ flex: '1 1 250px', maxWidth: '300px' }}
+            style={{ flex: '1 1 250px' }}
           />
+
+          {activeTab === 'crew' ? (
+            <>
+              {/* Filtros específicos de Tripulación */}
+              <select 
+                value={crewAgencyFilter} 
+                onChange={(e) => setCrewAgencyFilter(e.target.value)}
+                className="sort-select"
+              >
+                <option value="all">Todas las Agencias</option>
+                <option value="NASA">NASA</option>
+                <option value="JAXA">JAXA</option>
+                <option value="ESA">ESA</option>
+                <option value="SpaceX">SpaceX</option>
+                <option value="Axiom Space">Axiom Space</option>
+                <option value="Roscosmos">Roscosmos</option>
+              </select>
+              <select 
+                value={crewSortOrder} 
+                onChange={(e) => setCrewSortOrder(e.target.value)}
+                className="sort-select"
+              >
+                <option value="asc">A - Z (Nombre)</option>
+                <option value="desc">Z - A (Nombre)</option>
+              </select>
+            </>
+          ) : (
+            <>
+              {/* Filtros específicos de Cargas Útiles */}
+              <select 
+                value={payloadTypeFilter} 
+                onChange={(e) => setPayloadTypeFilter(e.target.value)}
+                className="sort-select"
+              >
+                <option value="all">Todos los Tipos</option>
+                <option value="Satellite">Satellite</option>
+                <option value="Dragon Boilerplate">Dragon Boilerplate</option>
+                <option value="Dragon 1.0">Dragon 1.0</option>
+                <option value="Dragon 1.1">Dragon 1.1</option>
+                <option value="Dragon 2.0">Dragon 2.0</option>
+                <option value="Lander">Lander</option>
+                <option value="Crew Dragon">Crew Dragon</option>
+              </select>
+              <select 
+                value={payloadSortOrder} 
+                onChange={(e) => setPayloadSortOrder(e.target.value)}
+                className="sort-select"
+              >
+                <option value="asc">A - Z (Nombre)</option>
+                <option value="desc">Z - A (Nombre)</option>
+              </select>
+            </>
+          )}
+
         </div>
 
         {/* TABLA REACTIVA DINÁMICA */}
@@ -161,13 +240,11 @@ export default function PressDashboard() {
                   filteredCrew.map(c => (
                     <tr key={c.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                       <td style={{ padding: '0.5rem' }}>
-                        {/* IMAGEN CLICKABLE */}
                         <a href={c.wikipedia} target="_blank" rel="noopener noreferrer" title={`Leer sobre ${c.name} en Wikipedia`}>
                           <img src={c.image} alt={c.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--accent-color)' }} />
                         </a>
                       </td>
                       <td style={{ padding: '1rem 0.5rem', fontWeight: 'bold' }}>
-                        {/* NOMBRE CLICKABLE */}
                         <a href={c.wikipedia} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-primary)', textDecoration: 'underline', textDecorationColor: 'var(--accent-color)' }}>
                           {c.name}
                         </a>
@@ -177,14 +254,13 @@ export default function PressDashboard() {
                     </tr>
                   ))
                 ) : (
-                  <tr><td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>No se encontraron astronautas.</td></tr>
+                  <tr><td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>No se encontraron astronautas con estos filtros.</td></tr>
                 )
               ) : (
                 filteredPayloads.length > 0 ? (
                   filteredPayloads.map(p => (
                     <tr key={p.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                       <td style={{ padding: '1rem 0.5rem', fontWeight: 'bold' }}>
-                        {/* BÚSQUEDA DINÁMICA DEL SATÉLITE CLICKABLE (Color Naranja) */}
                         <a 
                           href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' satellite SpaceX')}`} 
                           target="_blank" 
@@ -201,7 +277,7 @@ export default function PressDashboard() {
                     </tr>
                   ))
                 ) : (
-                  <tr><td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>No se encontraron cargas útiles.</td></tr>
+                  <tr><td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>No se encontraron cargas útiles con estos filtros.</td></tr>
                 )
               )}
             </tbody>
