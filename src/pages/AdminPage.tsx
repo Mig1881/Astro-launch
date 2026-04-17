@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getUsersRequest, deleteUserRequest, getToken } from "../auth/authApi";
+import { getUsersRequest, deleteUserRequest, updateUserRoleRequest, getToken } from "../auth/authApi";
 import type { User } from "../types";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
@@ -9,7 +9,6 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ESTADOS PARA EL FILTRADO Y ORDENACIÓN
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("asc");
@@ -44,10 +43,28 @@ export default function AdminPage() {
     }
   };
 
+  const handleToggleRole = async (user: User, newRole: string) => {
+    const accionText = newRole === "prensa" ? "dar credenciales de Prensa a" : "revocar credenciales de Prensa y hacer Piloto a";
+    
+    if (!window.confirm(`¿Seguro que quieres ${accionText} ${user.email}?`)) return;
+    
+    try {
+      const token = getToken();
+      if (!token) return;
+      
+      await updateUserRoleRequest(user, newRole, token);
+      
+      setUsers(users.map(u => 
+        u.id === user.id ? { ...u, role: newRole } : u
+      ));
+    } catch (err) {
+      alert("Error al cambiar el rol del usuario en el servidor.");
+    }
+  };
+
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
 
-  // LÓGICA DE PROCESAMIENTO REACTIVO
   let filteredUsers = users.filter(user => {
     const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === "all" ? true : user.role === roleFilter;
@@ -58,10 +75,9 @@ export default function AdminPage() {
     return sortOrder === "asc" ? a.id - b.id : b.id - a.id;
   });
 
-  // CÁLCULO DE MÉTRICAS PARA EL DASHBOARD
   const totalUsers = users.length;
   const totalAdmins = users.filter(u => u.role === 'admin').length;
-  const totalPilots = totalUsers - totalAdmins;
+  const totalPilots = users.filter(u => u.role === 'user').length; 
 
   const operativeForce = totalUsers > 0 ? Math.round((totalPilots / totalUsers) * 100) : 0;
 
@@ -75,7 +91,6 @@ export default function AdminPage() {
         Dashboard de administración de la tripulación de AstroLaunchX.
       </p>
 
-      {/* COMPONENTES DE RESUMEN */}
       <div className="dashboard-metrics-grid">
         <div className="metric-card border-accent">
           <h3 className="metric-title">Total Tripulación</h3>
@@ -95,7 +110,6 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* CONTROLES DE FILTRADO REUTILIZANDO CLASES DE APP.CSS */}
       <div className="search-controls-container" style={{ flexWrap: 'wrap' }}>
         <input 
           type="text" 
@@ -113,6 +127,7 @@ export default function AdminPage() {
           <option value="all">Todos los Roles</option>
           <option value="admin">Solo Admins</option>
           <option value="user">Solo Pilotos</option>
+          <option value="prensa">Solo Prensa</option>
         </select>
         <select 
           value={sortOrder} 
@@ -124,7 +139,6 @@ export default function AdminPage() {
         </select>
       </div>
 
-      {/* TABLA DE USUARIOS REACTIVA */}
       <div className="contact-form" style={{ maxWidth: '100%', padding: '1.5rem' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
@@ -139,16 +153,15 @@ export default function AdminPage() {
             <tbody>
               {filteredUsers.length > 0 ? (
                 filteredUsers.map(user => {
-                  // Pequeña lógica para asignar colores limpios según el rol
-                  let roleBg = 'rgba(34, 197, 94, 0.1)'; // Verde por defecto (user)
+                  let roleBg = 'rgba(34, 197, 94, 0.1)'; 
                   let roleColor = '#22c55e';
                   
                   if (user.role === 'admin') {
                     roleBg = 'rgba(100, 108, 255, 0.1)';
-                    roleColor = 'var(--accent-color)'; // Azul
+                    roleColor = 'var(--accent-color)'; 
                   } else if (user.role === 'prensa') {
                     roleBg = 'rgba(245, 158, 11, 0.1)';
-                    roleColor = '#f59e0b'; // Naranja
+                    roleColor = '#f59e0b'; 
                   }
 
                   return (
@@ -157,16 +170,43 @@ export default function AdminPage() {
                       <td style={{ padding: '1rem 0.5rem' }}>{user.email}</td>
                       <td style={{ padding: '1rem 0.5rem' }}>
                         <span style={{ 
-                          backgroundColor: roleBg,
-                          color: roleColor,
-                          border: `1px solid ${roleColor}`,
-                          padding: '0.3rem 0.6rem',
-                          borderRadius: '6px', fontSize: '0.85rem', fontWeight: 'bold', textTransform: 'uppercase'
+                          backgroundColor: roleBg, color: roleColor, border: `1px solid ${roleColor}`,
+                          padding: '0.3rem 0.6rem', borderRadius: '6px', fontSize: '0.85rem', 
+                          fontWeight: 'bold', textTransform: 'uppercase'
                         }}>
                           {user.role}
                         </span>
                       </td>
-                      <td style={{ padding: '1rem 0.5rem', textAlign: 'right' }}>
+                      <td style={{ padding: '1rem 0.5rem', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.8rem' }}>
+                        
+                        {/* BOTÓN ASCENDER A PRENSA (Si es user) */}
+                        {user.role === 'user' && (
+                           <button 
+                             onClick={() => handleToggleRole(user, 'prensa')}
+                             className="btn-reset"
+                             style={{ 
+                               borderColor: '#f59e0b', color: '#f59e0b', padding: '0.4rem 0.8rem'
+                             }}
+                             title="Dar privilegios de Sala de Prensa"
+                           >
+                             📰 Hacer Prensa
+                           </button>
+                        )}
+
+                        {/* BOTÓN DEGRADAR A PILOTO (Si es prensa) */}
+                        {user.role === 'prensa' && (
+                           <button 
+                             onClick={() => handleToggleRole(user, 'user')}
+                             className="btn-reset"
+                             style={{ 
+                               borderColor: '#22c55e', color: '#22c55e', padding: '0.4rem 0.8rem'
+                             }}
+                             title="Revocar privilegios y hacer Piloto"
+                           >
+                             👨‍🚀 Hacer Piloto
+                           </button>
+                        )}
+
                         <button 
                           onClick={() => handleDelete(user.id)}
                           className="btn-reset"
