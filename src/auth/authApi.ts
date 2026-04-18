@@ -1,4 +1,4 @@
-//Data Transfer Objects
+// --- Data Transfer Objects ---
 export interface LoginPayload {
   email: string;
   password: string;
@@ -10,15 +10,14 @@ export interface RegisterPayload extends LoginPayload {
 
 import type { User } from "../types";
 
-//Persistencia en el disco duro del navegador (localStorage)
+// Persistencia en el disco duro del navegador (localStorage)
 export const saveToken = (token: string) => localStorage.setItem("token", token);
 export const getToken = () => localStorage.getItem("token");
 export const clearToken = () => localStorage.removeItem("token");
 
-// Vite inyectará esta variable dependiendo del entorno (.env)
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-//Capa de Servicio (Llamadas HTTP con Fetch)
+// --- Capa de Servicio (Llamadas HTTP con Fetch) ---
 
 export const loginRequest = async (payload: LoginPayload) => {
   const response = await fetch(`${BASE_URL}/auth/login`, {
@@ -100,9 +99,9 @@ export const getPayloadsRequest = async (token: string) => {
   return response.json();
 };
 
-// Actualizar el rol de un usuario
+//Actualizar el rol de un usuario
 export const updateUserRoleRequest = async (user: User, newRole: string, token: string) => {
-  const response = await fetch(`http://localhost:3000/users/${user.id}`, {
+  const response = await fetch(`${BASE_URL}/users/${user.id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
