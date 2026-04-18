@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    container_name: astrolaunch_backend
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - PORT=${PORT}
+    restart: always
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+      args:
+        - VITE_API_URL=http://${HOST_IP}:${PORT}
+    container_name: astrolaunch_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
