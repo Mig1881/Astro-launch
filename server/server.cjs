@@ -9,7 +9,9 @@ const router = jsonServer.router("./server/db.json");
 server.use(jsonServer.defaults());
 server.use(jsonServer.bodyParser);
 
-const SECRET_KEY = "123456789";
+// VARIABLES DE ENTORNO: Se coge las de producción (Docker/EC2) o se usa valores por defecto para desarrollo
+const SECRET_KEY = process.env.JWT_SECRET || "123456789";
+const PORT = process.env.PORT || 3000;
 const expiresIn = "1h";
 
 //Funciones JWT
@@ -24,7 +26,6 @@ function verifyToken(token) {
 }
 
 //Funciones Base de Datos
-
 function getUsers() {
   const db = JSON.parse(fs.readFileSync("./server/db.json", "UTF-8"));
   return db.users || []; 
@@ -34,6 +35,10 @@ function saveUsers(updatedUsers) {
   const db = JSON.parse(fs.readFileSync("./server/db.json", "UTF-8"));
   db.users = updatedUsers;
   fs.writeFileSync("./server/db.json", JSON.stringify(db, null, 2));
+  
+  if (router && router.db) {
+    router.db.setState(db);
+  }
 }
 
 function findUser(email, password) {
@@ -43,7 +48,6 @@ function findUser(email, password) {
 }
 
 //Endpoints de Autenticación
-
 server.post("/auth/register", (req, res) => {
   const { email, password, role } = req.body;
   const users = getUsers();
@@ -98,15 +102,10 @@ server.get("/me", (req, res) => {
 });
 
 //Protección de Rutas
-
 server.use(/^(?!\/auth).*$/, (req, res, next) => {
-  // Dejamos pasar peticiones OPTIONS (CORS del navegador) y /me
   if (req.method === "OPTIONS") return next();
   if (req.path === "/me") return next();
   
-  
-  //TODOS los endpoints de datos requieren token.
-
   if (
     req.headers.authorization === undefined ||
     req.headers.authorization.split(" ")[0] !== "Bearer"
@@ -125,19 +124,30 @@ server.use(/^(?!\/auth).*$/, (req, res, next) => {
   }
 });
 
-
 //ENDPOINTS PARA EL PANEL DE ADMIN
-
-
 server.get("/users", (req, res) => {
   const users = getUsers();
-  // Mapeamos para NO enviar las contraseñas al frontend
   const safeUsers = users.map(user => ({
     id: user.id,
     email: user.email,
     role: user.role
   }));
   res.status(200).json(safeUsers);
+});
+
+server.patch("/users/:id", (req, res) => {
+  let users = getUsers();
+  const idToUpdate = parseInt(req.params.id);
+  const userIndex = users.findIndex(u => u.id === idToUpdate);
+
+  if (userIndex === -1) {
+    return res.status(404).json({ message: "Usuario no encontrado" });
+  }
+
+  users[userIndex] = { ...users[userIndex], ...req.body };
+  saveUsers(users);
+
+  res.status(200).json(users[userIndex]);
 });
 
 server.delete("/users/:id", (req, res) => {
@@ -159,6 +169,6 @@ server.delete("/users/:id", (req, res) => {
 
 server.use(router);
 
-server.listen(3000, () => {
-  console.log("🚀 AstroLaunch Auth API Server running on port 3000");
+server.listen(PORT, () => {
+  console.log(`🚀 AstroLaunch Auth API Server running on port ${PORT}`);
 });

@@ -15,8 +15,8 @@ export const saveToken = (token: string) => localStorage.setItem("token", token)
 export const getToken = () => localStorage.getItem("token");
 export const clearToken = () => localStorage.removeItem("token");
 
-//
-const BASE_URL = "http://localhost:3000";
+// Vite inyectará esta variable dependiendo del entorno (.env)
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 //Capa de Servicio (Llamadas HTTP con Fetch)
 
