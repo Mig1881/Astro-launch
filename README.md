@@ -22,8 +22,78 @@ AstroLaunchX es una aplicación web interactiva desarrollada con **React** y **T
 5.  **Formulario de Contacto:** Validación robusta (Regex) y simulación de envío con feedback visual.
 6.  **Diseño UX/UI:** Aplicación de leyes de la Gestalt (Proximidad, Semejanza, Feedback) y diseño totalmente responsive.
 
-## 📦 Instalación y Despliegue
+(Fase 2: Entorno Profesional)
+
+AstroLaunchX ha evolucionado de una plataforma de consulta a un ecosistema profesional de monitorización y gestión de misiones espaciales. El proyecto ahora integra una arquitectura robusta orientada a la escalabilidad, seguridad y gestión jerárquica de usuarios.
+
+## 🛠️ Tecnologías y Arquitectura
+
+* **Core:** React (Vite), TypeScript.
+* **Gestión de Estado Global:** Context API + `useReducer` para un flujo de datos unidireccional y predecible (Motor de Autenticación).
+* **Arquitectura de Capas:** Separación estricta de responsabilidades (SRP) mediante una Capa de Servicios (`SpaceXAPI.ts` y `authApi.ts`).
+* **Seguridad:** Autenticación basada en **JWT (JSON Web Tokens)** con persistencia en `localStorage`.
+* **Despliegue:** Contenerización con **Docker** y **Docker Compose**.
+* **Testing:** Suite de pruebas con **Vitest** y **React Testing Library**.
+
+## ✨ Nuevas Funcionalidades
+
+1.  **Gestión de Roles (RBAC):** Sistema jerárquico con niveles de acceso diferenciados para Administradores, Prensa y Pilotos.
+2.  **Dashboards Reactivos:** Paneles de mando personalizados por rol con métricas en tiempo real (Tasas de éxito, conteo de tripulación, toneladas enviadas) utilizando un patrón simétrico de 4 tarjetas.
+3.  **Filtrado Complejo de 4 Ejes:** Buscador avanzado que permite intersecciones lógicas (AND) entre Texto, Estado de misión, Tripulación y Orden cronológico.
+4.  **Optimización Asíncrona:** Implementación de `Promise.all` para la carga en paralelo de datos técnicos (cohetes, plataformas, cargas útiles y tripulación), reduciendo drásticamente los tiempos de carga.
+5.  **Seguridad UX:** Implementación de `rel="noopener noreferrer"` en todos los enlaces dinámicos externos para prevenir ataques de phishing.
+6.  **Diseño Cognitivo:** Aplicación de la **Ley de la Proximidad (Gestalt)** para unificar visualmente la narrativa de "El Equipo" en las vistas de detalle.
+
+## 🧪 Testing y Calidad (QA)
+
+La aplicación cuenta con una suite de **25 pruebas unitarias e integración** que garantizan la estabilidad del sistema. Se han evaluado:
+* **Lógica de negocio:** Reducers puros y estados inmutables.
+* **Mocks de API:** Simulación de escenarios de éxito y errores HTTP 401.
+* **Accesibilidad (A11y):** Validación de etiquetas, atributos `htmlFor` y compatibilidad con lectores de pantalla.
+
+Para ejecutar las pruebas:
+```bash
+npm run test
+```
+
+## 📦 Instalación y Desarrollo Local
 
 1.  Clonar el repositorio.
 2.  Instalar dependencias: `npm install`
 3.  Ejecutar en desarrollo: `npm run dev`
+
+## 📦 Despliegue en Produccion (AWS EC2 + Docker)
+
+1. Configuración del Entorno. En el terminal de la EC2 escribe: 
+
+```bash
+git clone https://github.com/Mig1881/Astro-launch
+cd Astro-launch
+```
+
+Es obligatorio crear un archivo .env en la raíz del proyecto para configurar la comunicación entre el Frontend y el Backend. Este archivo debe contener las siguientes tres variables:
+
+```bash
+nano .env
+```
+
+```bash
+HOST_IP=TU_IP_PUBLICA_AWS   # (localhost en local, IP pública en AWS)
+PORT=3000                   # Puerto donde correrá el Backend
+JWT_SECRET=tu_clave_secreta # Clave para la firma de tokens
+```
+guarda con Ctrl+O, Enter, y sale con Ctrl+X
+
+3. Construir las imágenes: 
+```bash
+sudo docker compose build --no-cache
+```
+4. Levantar los contenedores:
+```bash
+sudo docker compose up -d
+```
+
+
+
+
+
