@@ -44,23 +44,37 @@ AstroLaunchX ha evolucionado de una plataforma de consulta a un ecosistema profe
 5.  **Seguridad UX:** Implementación de `rel="noopener noreferrer"` en todos los enlaces dinámicos externos para prevenir ataques de phishing.
 6.  **Diseño Cognitivo:** Aplicación de la **Ley de la Proximidad (Gestalt)** para unificar visualmente la narrativa de "El Equipo" en las vistas de detalle.
 
-## 🧪 Testing y Calidad (QA)
+## 🧪 Testing
 
-La aplicación cuenta con una suite de **25 pruebas unitarias e integración** que garantizan la estabilidad del sistema. Se han evaluado:
+La aplicación cuenta con una suite de **30 pruebas unitarias e integración** y **8 test E2E de flujos completos** que garantizan la estabilidad del sistema.  
+Se han evaluado:  
+
 * **Lógica de negocio:** Reducers puros y estados inmutables.
 * **Mocks de API:** Simulación de escenarios de éxito y errores HTTP 401.
-* **Accesibilidad (A11y):** Validación de etiquetas, atributos `htmlFor` y compatibilidad con lectores de pantalla.
 
 Para ejecutar las pruebas:
 ```bash
 npm run test
 ```
+**Testing funcional E2E**
+
+En la base de datos ya estan definidos los usuarios que hacen falta para ejcutar estos test exitosamente, en caso de duda consultar db.json.  
+
+
+![alt text](image.png)    
+  
+Para ejecutar test E2E:
+```bash
+npx playwright test --ui
+```
 
 ## 📦 Instalación y Desarrollo Local
 
-1.  Clonar el repositorio.
-2.  Instalar dependencias: `npm install`
-3.  Ejecutar en desarrollo: `npm run dev`
+1.  Clonar el repositorio y entrar en la carpeta del proyecto: `git clone https://github.com/Mig1881/Astro-launch.git`  
+2.  Entrar en la carpeta del proyecto: `cd Astro-launch`
+3.  Instalar dependencias: `npm install`
+4.  Arranacar el servidor del backend: `node server/server.ts`
+5.  Ejecutar en desarrollo: `npm run dev`
 
 ## 📦 Despliegue en Produccion (AWS EC2 + Docker)
 

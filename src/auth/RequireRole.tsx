@@ -10,9 +10,18 @@ interface RequireRoleProps {
 // Filtro de autorización basado en roles
 const RequireRole = ({ allowedRoles, children }: RequireRoleProps) => {
   const { state } = useAuth();
-  const { user } = state;
+  const { user, isAuthenticated } = state; 
 
-  if (!user) {
+  //Si hay token (isAuthenticated) pero aún no hay datos del usuario todavia, se esperae
+  if (isAuthenticated && user === null) {
+    return (
+      <div style={{ color: "white", padding: "2rem", textAlign: "center" }}>
+        Verificando credenciales... 🚀
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;
   }
 
@@ -20,7 +29,7 @@ const RequireRole = ({ allowedRoles, children }: RequireRoleProps) => {
     return <Navigate to="/" replace />; 
   }
 
-  return children;
+  return <>{children}</>;
 };
 
 export default RequireRole;

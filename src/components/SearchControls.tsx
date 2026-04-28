@@ -44,7 +44,7 @@ export default function SearchControls({
         <option value="failure">❌ Solo Fallos</option>
       </select>
 
-      {/* NUEVO: Selector de Filtro por Tripulación */}
+      {/*Selector de Filtro por Tripulación */}
       <select
         value={crewFilter}
         onChange={(e) => onCrewFilterChange(e.target.value)}
