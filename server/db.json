@@ -16,19 +16,13 @@
       "id": 3,
       "email": "nuevopiloto@gmail.com",
       "password": "nuevopiloto",
-      "role": "user"
+      "role": "prensa"
     },
     {
       "id": 4,
       "email": "prensa@spacex.com",
       "password": "prensa",
       "role": "prensa"
-    },
-    {
-      "id": 5,
-      "email": "neil@nasa.com",
-      "password": "neil",
-      "role": "user"
     }
   ],
   "launches": [
